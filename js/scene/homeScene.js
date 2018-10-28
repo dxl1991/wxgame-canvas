@@ -2,9 +2,11 @@ import QuestionPage from './questionScene'
 import Background from '../runtime/background'
 import DataStore from '../base/DataStore';
 import Sprite from '../base/Sprite';
+import Music from '../../music'
 // import {getAuthSettings, createUserInfoButton} from '../utils/auth.js';
 const screenWidth = window.innerWidth;
 const screenHeight = window.innerHeight;
+var music = new Music()
 
 export default class HomeScene {
   constructor(ctx) {
@@ -94,6 +96,7 @@ export default class HomeScene {
               _this.loop();
               wx.offTouchStart(); // 在分享canvas还是会响应事件，所以先解除事件绑定
           }
+          music.playShoot();
       });
   }
 }
