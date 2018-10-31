@@ -3,6 +3,7 @@ import {drawText} from '../utils/index.js';
 import Background from '../runtime/background';
 import Sprite from '../base/Sprite';
 import DataStore from "../base/DataStore";
+import Music from '../../music'
 // 采用750的设计稿
 const screenWidth = window.innerWidth;
 const screenHeight = window.innerHeight;
@@ -11,7 +12,7 @@ const scale = 750 / screenWidth;
 
 const CHOICE_WIDTH = 288;
 const CHOICE_HEIGHT = 88;
-
+var music = new Music();
 // 创建问题canvas, 离屏canvas
 export default class QuestionPage{
     constructor(ctx, question, index) {
@@ -179,6 +180,7 @@ export default class QuestionPage{
                 && e.touches[0].clientY <= _this.selectArea.endY){
                 this.selected = true;
                 _this.judgeAnswer(e.touches[0].clientX, e.touches[0].clientY);
+                music.playShoot();
             }
         });
     }

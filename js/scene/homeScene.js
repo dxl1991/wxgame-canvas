@@ -75,6 +75,7 @@ export default class HomeScene {
                   cancelAnimationFrame(_this.requestId);
               }, 20);
           }
+          music.playShoot();
         }); 
         return;
       }
