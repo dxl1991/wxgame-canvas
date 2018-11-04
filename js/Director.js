@@ -30,6 +30,10 @@ export default class Director {
         this.homeScene = new HomeScene(ctx);
     }
 
+
+  clearQuestion() {
+    this.currentIndex = 0;
+  }
     toQuestionScene () {
         let ctx = DataStore.getInstance().ctx;
         this.offScreenCanvas = wx.createCanvas();

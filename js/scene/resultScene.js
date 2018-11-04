@@ -6,6 +6,7 @@ import Sprite from "../base/Sprite";
 import DataStore from "../base/DataStore";
 import {remarks} from '../data/questions';
 import {drawText} from '../utils/index';
+
 const screenWidth = window.innerWidth;
 const screenHeight = window.innerHeight;
 const ratio = 750 / screenWidth;//wx.getSystemInfoSync().pixelRatio;
@@ -47,29 +48,34 @@ export default class ResultScene {
         resultSprite.draw(this.ctx);
 
         this.ctx.fillStyle = '#1b282c';
-        this.ctx.font = '30px Arial';
+        this.ctx.font = '40px Arial';
         // console.log(DataStore.getInstance().userInfo);
         //DataStore.getInstance().userInfo.nickName 主域获取用户信息需要用户点击按钮，不获取了
-        this.ctx.fillText('你的分数', resultSprite.x + 100, resultSprite.y + 190);
+        this.ctx.fillText('你的分数', resultSprite.x + 50, resultSprite.y + 150);
         this.ctx.fillText('分', (750-resultSprite.x) - 120, resultSprite.y + 190);
         this.ctx.save();
-        this.ctx.font = '24px Arial';
-        drawText(remarks[this.score], resultSprite.x + 100, resultSprite.y + 240,resultSprite.width-200 ,this.ctx, ratio);
+        this.ctx.font = '26px Arial';
+        drawText(remarks[this.score], resultSprite.x + 50, resultSprite.y + 250,resultSprite.width-100 ,this.ctx, ratio);
 
         this.ctx.fillStyle = '#fff';
-        this.ctx.font = '76px Arial';
+        this.ctx.font = '70px Arial';
         this.ctx.fillText(this.score, (750-resultSprite.x) - 300, resultSprite.y + 170);
         this.ctx.save();
-
+		
         this.rankImg = Sprite.getImage('result_rank');
         this.rankSprite = new Sprite(this.rankImg, (750 - this.rankImg.width) / 2, resultSprite.y + resultSprite.height + 40,
             this.rankImg.width, this.rankImg.height);
         this.rankSprite.draw(this.ctx);
-
+		
         this.reportImg = Sprite.getImage('report_btn');
         this.reportSprite = new Sprite(this.reportImg, (750 - this.reportImg.width) / 2, this.rankSprite.y + this.rankSprite.height + 40,
             this.reportImg.width, this.reportImg.height);
         this.reportSprite.draw(this.ctx);
+		
+        this.btnImg = Sprite.getImage('start_btn');
+        this.startSprite = new Sprite(this.btnImg, (750 - this.btnImg.width) / 2, this.reportSprite.y + this.reportSprite.height + 40,
+            this.btnImg.width, this.btnImg.height);
+        this.startSprite.draw(this.ctx);		
 
         this.bindEvent();
     }
@@ -116,6 +122,15 @@ export default class ResultScene {
                 && y <= _this.reportSprite.y + _this.reportSprite.height) {
                 // 导出成绩单
                 _this.report();
+            } else if (x >= _this.startSprite.x
+              && x <= _this.startSprite.x + _this.startSprite.width
+              && y >= _this.startSprite.y
+              && y <= _this.startSprite.y + _this.startSprite.height) {
+              // 重新开始
+              console.log('重新开始');
+              cancelAnimationFrame(_this.requestId);
+              DataStore.getInstance().director.clearQuestion();
+              DataStore.getInstance().director.toQuestionScene();
             }
         });
     }
