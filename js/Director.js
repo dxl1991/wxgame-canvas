@@ -33,6 +33,7 @@ export default class Director {
 
   clearQuestion() {
     this.currentIndex = 0;
+    Question.getInstance().randomQuestion();
   }
     toQuestionScene () {
         let ctx = DataStore.getInstance().ctx;

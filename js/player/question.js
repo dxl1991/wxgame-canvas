@@ -16,6 +16,11 @@ export default class Question {
         }
         return Question.instance;
     }
+    
+    randomQuestion(){
+      this.currentList = this.getQuestions();
+    }
+    
     // 随机获取10个问题
     getQuestions() {
         let questions = [], randoms = [], loaders = [];
