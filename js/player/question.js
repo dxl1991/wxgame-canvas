@@ -7,7 +7,7 @@ import ResourceLoader from "../base/ResourceLoader";
 export default class Question {
     constructor () {
         this.currentList = this.getQuestions();
-        debugger;
+        // debugger;
         ResourceLoader.create(this.loaders);
     }
     static getInstance () {
