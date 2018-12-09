@@ -23,11 +23,35 @@ export default class QuestionPage{
         this.ctx = ctx;
         this.selected = false;
         this.init(this.question);
+        this.drawScore();
         this.drawProgress();
         this.drawPic();
         this.drawTitle();
         this.drawChoice();
         this.addTouch();
+
+      this.offScreenCanvas = wx.createCanvas();
+      this.offScreenCanvas.width = screenWidth * ratio;
+      this.offScreenCanvas.height = screenHeight * ratio;
+      this.questionCtx = this.offScreenCanvas.getContext('2d');
+      this.questionCtx.scale(ratio, ratio);
+
+
+        this.countDownNum = 5;
+        this.countDown();
+        this.drawCountDown();
+    }
+    countDown(){
+      this.t = setTimeout(() => {
+        this.countDownNum--;
+        this.drawCountDown();
+        if (this.countDownNum === 0){
+          this.selected = true;
+          this.judgeAnswer(0, 0, false);
+        }else{
+          this.countDown();
+        }
+      }, 1000);
     }
     init(data) {
         this.img = data.pic;
@@ -35,14 +59,52 @@ export default class QuestionPage{
         this.choices = data.choices;
         this.answer = data.answer;
     }
+    drawScore(){
+      let mscore = wx.getStorageSync('maxScore');
+      if(!mscore){
+        mscore = 0;
+      }
+      this.ctx.font = '28px Arial';
+      this.ctx.fillStyle = '#654e01';
+      this.ctx.fillText("历史最高分：", 180, 55);
+      this.ctx.fillStyle = '#4F4F4F';
+      this.ctx.fillText(mscore, 350, 55);
+      this.ctx.fillStyle = '#654e01';
+      this.ctx.fillText("当前分：", 180, 95);
+      this.ctx.fillStyle = '#4F4F4F';
+      this.ctx.fillText(DataStore.getInstance().score, 300, 95);
+      this.ctx.fillStyle = '#654e01';
+      this.ctx.fillText("倒计时：", 180, 135);
+    }
+
+    drawCountDown(){
+      this.questionCtx.clearRect(0, 0, screenWidth * ratio, screenHeight * ratio);
+      // this.offScreenCanvas.height = screenHeight * ratio;
+
+      console.log("绘制倒计时" + this.countDownNum);
+      // this.ctx.clearRect(300, 135,20,20);
+      // this.questionCtx.fillRect(300, 135, 20, 20);
+      this.questionCtx.font = "bold 40pt Arial";
+      this.questionCtx.fillStyle = "red";
+      this.questionCtx.textAlign = "center";
+      this.questionCtx.textBaseline = 'middle';
+      this.questionCtx.fillText(this.countDownNum + "s", 300, 135);
+
+      this.ctx.drawImage(this.offScreenCanvas, 0, 0, screenWidth, screenHeight);
+
+      this.reDrawCanvas();
+      // questionCtx.fillText(this.countDownNum + "s", 300, 135);
+      // drawText(this.countDownNum+"s", 300, 135, 750 - 2 * this.bg.x, this.ctx, ratio);
+      
+    }
     drawProgress () {
         let barImg = Sprite.getImage('progress_bar');
         let bar = new Sprite(barImg, (750 - barImg.width)/2, 20, barImg.width, barImg.height);
-        bar.draw(this.ctx);
+        // bar.draw(this.ctx);
         let percent = (this.index+1)/10;
         // this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.fillStyle = '#fed443';
-        this.ctx.fillRect(bar.x+4, bar.y+82, (bar.width-8)*percent, 16);
+        // this.ctx.fillStyle = '#fed443';
+        // this.ctx.fillRect(bar.x+4, bar.y+82, (bar.width-8)*percent, 16);
         this.bar = bar;
     }
     drawPic() {
@@ -135,7 +197,7 @@ export default class QuestionPage{
         ctx.fillText(text, x-8, y);
     }
     // 判断答案是否正确
-    judgeAnswer (x, y) {
+    judgeAnswer (x, y, s) {
         let index;
         let time = 1000;
         if (x <= this.selectArea.x + this.selectArea.width) { // a  c  无
@@ -146,12 +208,18 @@ export default class QuestionPage{
             this.selected = false;
             return;
         }
+        if(this.t){
+           clearTimeout(this.t);
+        }
         console.log('select: ' + index);
-        if (index === this.answer) {
+      if (index === this.answer && s === true) {
             DataStore.getInstance().score += 10;
             this.drawChoiceItem(index, 'select_right',this.reDrawCanvas);
         } else {
-            this.drawChoiceItem(index, 'select_error',this.reDrawCanvas);
+           if (s === true){
+              this.drawChoiceItem(index, 'select_error',this.reDrawCanvas);
+            }
+        DataStore.getInstance().director.gameOver = 1;
             time += 800;
             setTimeout(() => {
                 this.drawChoiceItem(this.answer, 'right_choice',this.reDrawCanvas);
@@ -172,14 +240,14 @@ export default class QuestionPage{
         let _this = this;
         wx.offTouchStart();
         wx.onTouchStart((e)=>{
-            console.log(_this.selectArea.endY);
+          console.log(e.touches[0].clientX + "," + e.touches[0].clientY);
             if (!this.selected
                 &&e.touches[0].clientX >= _this.selectArea.x
                 && e.touches[0].clientX <= _this.selectArea.endX
                 && e.touches[0].clientY >= _this.selectArea.y
                 && e.touches[0].clientY <= _this.selectArea.endY){
                 this.selected = true;
-                _this.judgeAnswer(e.touches[0].clientX, e.touches[0].clientY);
+                _this.judgeAnswer(e.touches[0].clientX, e.touches[0].clientY,true);
                 music.playShoot();
             }
         });

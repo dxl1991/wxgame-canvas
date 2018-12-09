@@ -55,7 +55,11 @@ export default class ResultScene {
     this.ctx.fillText('分', (750 - resultSprite.x) - 120, resultSprite.y + 190);
     this.ctx.save();
     this.ctx.font = '26px Arial';
-    drawText(remarks[this.score], resultSprite.x + 50, resultSprite.y + 250, resultSprite.width - 100, this.ctx, ratio);
+    let tempScore = this.score;
+    if (tempScore > 100) {
+      tempScore = 100;
+    }
+    drawText(remarks[tempScore], resultSprite.x + 50, resultSprite.y + 250, resultSprite.width - 100, this.ctx, ratio);
 
     this.ctx.fillStyle = '#fff';
     this.ctx.font = '70px Arial';
@@ -234,5 +238,23 @@ export default class ResultScene {
         console.log(res);
       }
     });
+    // wx.clearStorage();
+    wx.getStorage({
+      key: 'maxScore',
+      success(res) {
+        if (score > res.data) {
+          wx.setStorage({
+            key: "maxScore",
+            data: score
+          })
+        }
+      },
+      fail(){
+        wx.setStorage({
+          key: "maxScore",
+          data: score
+        })
+      }
+    })
   }
 }

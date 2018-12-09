@@ -10,6 +10,7 @@ const ratio = wx.getSystemInfoSync().pixelRatio;
 export default class Director {
     constructor (ctx) {
         this.currentIndex = 0;
+        this.gameOver = 0;
         this.ctx = ctx; // 主屏的ctx
     }
     static getInstance () {
@@ -36,6 +37,8 @@ export default class Director {
     Question.getInstance().randomQuestion();
   }
     toQuestionScene () {
+        this.gameOver = 0;
+      console.log("gameOver="+this.gameOver);
         let ctx = DataStore.getInstance().ctx;
         this.offScreenCanvas = wx.createCanvas();
 
@@ -56,11 +59,16 @@ export default class Director {
     }
     // 问题场景
     nextQuestionScene () {
-        if (this.currentIndex === 9) {
-            this.showResultScene();
-            return;
+        if(this.gameOver === 1){
+          this.showResultScene();
+          return;
         }
-        this.currentIndex++;
+       if (this.currentIndex === 9) {
+         this.clearQuestion();
+       }else{
+         this.currentIndex++;
+       }
+        
         if (this.offScreenCanvas) {
             this.offScreenCanvas = null;
         }
